@@ -1,2 +1,2 @@
 # BT-Chess-ESP32
-Logic for the chess board's ESP32
+Sets up MQTT server and links esp32 boards together
