@@ -7,10 +7,11 @@ const char* ssid = "A56"; //CHANGE
 const char* password = "password1"; //CHANGE
 String x = "";
 
-const char* mqtt_server = "b961a90c5d7f4604992378963c9d10ae.s1.eu.hivemq.cloud";
-const char* mqtt_username = "board";
+const char* mqtt_server = "b961a90c5d7f4604992378963c9d10ae.s1.eu.hivemq.cloud"; //CAN CHANGE
+const char* mqtt_username = "board"; //CHANGE FOR OTHER BOARD
 const char* mqtt_password = "BTChess1!";
-const char* mqtt_topic = "hivemq/esp32";
+const char* mqtt_topic = "BTChess/board"; // Set as subscribe for other board
+const char* mqtt_subscribe = "BTChess/board2"; //set as topic for other board
 const int mqtt_port = 8883;
 const char* ca_cert = 
 "-----BEGIN CERTIFICATE-----\n"
@@ -53,7 +54,6 @@ void setup() {
   Serial.begin(115200);
   wifiInit();
   MQTTInit();
-  
 }
 
 void loop() {
@@ -61,6 +61,16 @@ void loop() {
         MQTTInit();
     }
     mqtt_client.loop();
+
+  if (Serial.available())
+  {
+    x = Serial.readStringUntil('\n');
+    x.trim();
+    if (x.equalsIgnoreCase("r"))
+    {
+      mqtt_client.publish(mqtt_topic, "mqtt test");
+    }
+  }
 }
 
 void wifiInit() {
@@ -91,21 +101,12 @@ void MQTTInit(){
     if (mqtt_client.connect(client_id.c_str(), mqtt_username, mqtt_password))
     {
       Serial.println("Connected to MQTT broker");
-      mqtt_client.subscribe(mqtt_topic);
+      mqtt_client.subscribe(mqtt_subscribe);
       mqtt_client.publish(mqtt_topic, "mqtt test");
     }
     else {
       Serial.printf("Failed, rc=%d\n", mqtt_client.state());
       delay(2000);
-    }
-  }
-  if (Serial.available())
-  {
-    x = Serial.readStringUntil('\n');
-    x.trim();
-    if (x.equalsIgnoreCase("r"))
-    {
-      mqtt_client.publish(mqtt_topic, "mqtt test");
     }
   }
 }
